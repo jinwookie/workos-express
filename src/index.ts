@@ -41,22 +41,26 @@ app.get("/merchant-portal/user/exist", async (req: Request, res: Response) => {
 });
 
 app.post("/merchant-portal/user", async (req: Request, res: Response) => {
-  console.log(req.body);
-  const user = await userManagement.createUser({
-    email: req.body.email,
-    firstName: req.body.firstName,
-    lastName: req.body.lastName,
-    password: req.body.password,
-  });
-  await userManagement.sendVerificationEmail({ userId: user.id });
+  try {
+    let pendingToken: string | undefined;
+    const user = await userManagement.createUser({
+      email: req.body.email,
+      firstName: req.body.firstName,
+      lastName: req.body.lastName,
+      password: req.body.password,
+    });
 
-  res.json({ userId: user.id });
+    res.json({ userId: user.id, pendingToken });
+  } catch (err) {
+    res.status(400).json(err);
+  }
 });
 
 app.post(
   "/merchant-portal/user/verify",
   async (req: Request, res: Response) => {
     const email = req.body.email;
+    const token = req.body.token;
     const users = await userManagement.listUsers({ email });
     if (users.data.length === 0) {
       res.status(400).json({ message: "User not found" });
@@ -64,7 +68,6 @@ app.post(
     }
 
     const user = users.data[0];
-    console.log(user);
 
     try {
       const response = await userManagement.verifyEmail({
