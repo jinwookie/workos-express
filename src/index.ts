@@ -48,6 +48,7 @@ app.post("/merchant-portal/user", async (req: Request, res: Response) => {
       firstName: req.body.firstName,
       lastName: req.body.lastName,
       password: req.body.password,
+      emailVerified: true,
     });
 
     res.json({ userId: user.id, pendingToken });
