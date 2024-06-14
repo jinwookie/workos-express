@@ -1,18 +1,19 @@
-import { WorkOS } from "@workos-inc/node";
 import bodyParser from "body-parser";
 import cors from "cors";
 import dotenv from "dotenv";
 import express, { Express, Request, Response } from "express";
+
 dotenv.config();
+
+import authMiddleware from "./middleware/authMiddleware";
+import { workos } from "./workos";
 
 const app: Express = express();
 app.use(cors());
 app.use(bodyParser.json());
 const port = process.env.PORT || 3000;
 
-const { userManagement, organizations } = new WorkOS(
-  process.env.WORKOS_API_KEY
-);
+const { userManagement, organizations } = workos;
 
 app.get("/", (req: Request, res: Response) => {
   res.send("Express + TypeScript Server");
@@ -84,14 +85,17 @@ app.post(
 
 app.post(
   "/merchant-portal/organizations/create",
+  authMiddleware,
   async (req: Request, res: Response) => {
     const org = await organizations.createOrganization({
       name: req.body.organizationName,
     });
 
+    const userId = req.header("wos-user-id");
+
     const membership = await userManagement.createOrganizationMembership({
       organizationId: org.id,
-      userId: req.body.userId,
+      userId: userId ?? "",
     });
 
     res.json({
