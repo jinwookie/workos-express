@@ -5,6 +5,7 @@ import express, { Express, Request, Response } from "express";
 
 dotenv.config();
 
+import invitationsRouter from "./invitationsRouter";
 import authMiddleware from "./middleware/authMiddleware";
 import { workos } from "./workos";
 
@@ -84,26 +85,32 @@ app.post(
 );
 
 app.post(
-  "/merchant-portal/organizations/create",
+  "/merchant-portal/organization",
   authMiddleware,
   async (req: Request, res: Response) => {
-    const org = await organizations.createOrganization({
-      name: req.body.organizationName,
-    });
+    try {
+      const org = await organizations.createOrganization({
+        name: req.body.name,
+      });
 
-    const userId = req.header("wos-user-id");
+      const userId = req.header("wos-user-id");
 
-    const membership = await userManagement.createOrganizationMembership({
-      organizationId: org.id,
-      userId: userId ?? "",
-    });
+      const membership = await userManagement.createOrganizationMembership({
+        organizationId: org.id,
+        userId: userId ?? "",
+      });
 
-    res.json({
-      organization: org,
-      membership,
-    });
+      res.status(201).json({
+        organization: org,
+        membership,
+      });
+    } catch (err) {
+      res.status(400).json(err);
+    }
   }
 );
+
+app.use("/merchant-portal/invitations", authMiddleware, invitationsRouter);
 
 app.listen(port, () => {
   console.log(`[server]: Server is running at http://localhost:${port}`);

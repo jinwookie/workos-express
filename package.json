@@ -11,6 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@google-cloud/recaptcha-enterprise": "^5.9.0",
     "@workos-inc/node": "7.9.0",
     "body-parser": "^1.20.2",
     "cors": "^2.8.5",
