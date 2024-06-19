@@ -86,14 +86,13 @@ app.post(
 
 app.post(
   "/merchant-portal/organization",
-  authMiddleware,
   async (req: Request, res: Response) => {
     try {
       const org = await organizations.createOrganization({
         name: req.body.name,
       });
 
-      const userId = req.header("wos-user-id");
+      let userId = req.header("wos-user-id") ?? req.body.userId;
 
       const membership = await userManagement.createOrganizationMembership({
         organizationId: org.id,
