@@ -7,6 +7,7 @@ dotenv.config();
 
 import invitationsRouter from "./invitationsRouter";
 import authMiddleware from "./middleware/authMiddleware";
+import organizationsRouter from "./organizationsRouter";
 import { workos } from "./workos";
 
 const app: Express = express();
@@ -84,31 +85,7 @@ app.post(
   }
 );
 
-app.post(
-  "/merchant-portal/organization",
-  async (req: Request, res: Response) => {
-    try {
-      const org = await organizations.createOrganization({
-        name: req.body.name,
-      });
-
-      let userId = req.header("wos-user-id") ?? req.body.userId;
-
-      const membership = await userManagement.createOrganizationMembership({
-        organizationId: org.id,
-        userId: userId ?? "",
-      });
-
-      res.status(201).json({
-        organization: org,
-        membership,
-      });
-    } catch (err) {
-      res.status(400).json(err);
-    }
-  }
-);
-
+app.use("/merchant-portal/organization", organizationsRouter);
 app.use("/merchant-portal/invitations", authMiddleware, invitationsRouter);
 
 app.listen(port, () => {
