@@ -71,7 +71,9 @@ organizationsRouter.get(
         return;
       }
 
-      res.json(org);
+      const workOsOrg = await workos.organizations.getOrganization(org.org_id);
+
+      res.json({ ...org, ...workOsOrg });
     } catch (err) {
       res.status(400).json(err);
     }
