@@ -3,6 +3,7 @@ import { ORG_ID_HEADER, USER_ID_HEADER } from "./headers";
 import authMiddleware from "./middleware/authMiddleware";
 import {
   createOrganization,
+  getOrganization,
   getOrganizationBySlug,
 } from "./sql/organizationsRepository";
 import { workos } from "./workos";
@@ -70,6 +71,20 @@ organizationsRouter.get(
         return;
       }
 
+      res.json(org);
+    } catch (err) {
+      res.status(400).json(err);
+    }
+  }
+);
+
+organizationsRouter.get(
+  "/:orgId",
+  authMiddleware,
+  async (req: Request, res: Response) => {
+    try {
+      const { orgId } = req.params;
+      const org = await getOrganization(orgId);
       res.json(org);
     } catch (err) {
       res.status(400).json(err);

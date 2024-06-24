@@ -17,6 +17,13 @@ export const createOrganization = async (org: CreateOrganizationRequest) => {
   return results[0];
 };
 
+export const getOrganization = async (orgId: string) => {
+  const results = await client<
+    Organization[]
+  >`select * from organizations where org_id = ${orgId}`;
+  return results[0];
+};
+
 export const getOrganizationBySlug = async (slug: string) => {
   const results = await client<
     Organization[]
